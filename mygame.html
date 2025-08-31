@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3 Games Website</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    header {
+      background: #3498db;
+      color: white;
+      padding: 20px;
+      font-size: 24px;
+    }
+    nav {
+      margin: 20px;
+    }
+    nav button {
+      margin: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background: #2ecc71;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    nav button:hover {
+      background: #27ae60;
+    }
+    .game {
+      display: none;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      width: 80%;
+      max-width: 500px;
+      border-radius: 12px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    }
+    /* Tic Tac Toe */
+    #ticTacToeBoard {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 5px;
+      justify-content: center;
+      margin: 20px auto;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      background: #ecf0f1;
+      font-size: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .cell:hover { background: #dfe6e9; }
+    /* Rock Paper Scissors */
+    #rps button {
+      padding: 10px 20px;
+      margin: 5px;
+      border-radius: 8px;
+      border: none;
+      background: #9b59b6;
+      color: white;
+      cursor: pointer;
+    }
+    #rps button:hover { background: #8e44ad; }
+  </style>
+</head>
+<body>
+  <header>🎮 My 3 Games Website</header>
+
+  <nav>
+    <button onclick="showGame('ticTacToe')">Tic Tac Toe</button>
+    <button onclick="showGame('guessNumber')">Number Guessing</button>
+    <button onclick="showGame('rps')">Rock Paper Scissors</button>
+  </nav>
+
+  <!-- Tic Tac Toe -->
+  <div id="ticTacToe" class="game">
+    <h2>Tic Tac Toe</h2>
+    <div id="ticTacToeBoard"></div>
+    <p id="ticTacToeMsg"></p>
+    <button onclick="resetTicTacToe()">Restart</button>
+  </div>
+
+  <!-- Number Guessing -->
+  <div id="guessNumber" class="game">
+    <h2>Guess the Number</h2>
+    <p>I am thinking of a number between 1 and 100.</p>
+    <input type="number" id="guessInput" placeholder="Enter guess">
+    <button onclick="checkGuess()">Guess</button>
+    <p id="guessResult"></p>
+  </div>
+
+  <!-- Rock Paper Scissors -->
+  <div id="rps" class="game">
+    <h2>Rock Paper Scissors</h2>
+    <button onclick="playRPS('rock')">Rock</button>
+    <button onclick="playRPS('paper')">Paper</button>
+    <button onclick="playRPS('scissors')">Scissors</button>
+    <p id="rpsResult"></p>
+  </div>
+
+  <script>
+    // Switch games
+    function showGame(id) {
+      document.querySelectorAll('.game').forEach(g => g.style.display = 'none');
+      document.getElementById(id).style.display = 'block';
+    }
+
+    // Tic Tac Toe
+    let currentPlayer = "X";
+    let board = ["","","","","","","","",""];
+    function initTicTacToe() {
+      const boardEl = document.getElementById("ticTacToeBoard");
+      boardEl.innerHTML = "";
+      board.forEach((val, i) => {
+        let cell = document.createElement("div");
+        cell.className = "cell";
+        cell.innerText = val;
+        cell.onclick = () => makeMove(i);
+        boardEl.appendChild(cell);
+      });
+      document.getElementById("ticTacToeMsg").innerText = "Player " + currentPlayer + "'s turn";
+    }
+    function makeMove(i) {
+      if (board[i] !== "") return;
+      board[i] = currentPlayer;
+      currentPlayer = currentPlayer === "X" ? "O" : "X";
+      initTicTacToe();
+      checkWinner();
+    }
+    function checkWinner() {
+      const wins = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+      ];
+      for (let combo of wins) {
+        let [a,b,c] = combo;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+          document.getElementById("ticTacToeMsg").innerText = board[a] + " Wins!";
+          board = Array(9).fill("done");
+          return;
+        }
+      }
+    }
+    function resetTicTacToe() {
+      board = ["","","","","","","","",""];
+      currentPlayer = "X";
+      initTicTacToe();
+    }
+    initTicTacToe();
+
+    // Number Guessing
+    let secret = Math.floor(Math.random() * 100) + 1;
+    function checkGuess() {
+      let guess = parseInt(document.getElementById("guessInput").value);
+      if (guess === secret) {
+        document.getElementById("guessResult").innerText = "🎉 Correct! The number was " + secret;
+        secret = Math.floor(Math.random() * 100) + 1;
+      } else if (guess < secret) {
+        document.getElementById("guessResult").innerText = "Too low! Try again.";
+      } else {
+        document.getElementById("guessResult").innerText = "Too high! Try again.";
+      }
+    }
+
+    // Rock Paper Scissors
+    function playRPS(player) {
+      const choices = ["rock","paper","scissors"];
+      const computer = choices[Math.floor(Math.random()*3)];
+      let result = "";
+      if (player === computer) {
+        result = "It's a tie!";
+      } else if (
+        (player==="rock" && computer==="scissors") ||
+        (player==="paper" && computer==="rock") ||
+        (player==="scissors" && computer==="paper")
+      ) {
+        result = "You win! " + player + " beats " + computer;
+      } else {
+        result = "You lose! " + computer + " beats " + player;
+      }
+      document.getElementById("rpsResult").innerText = result;
+    }
+  </script>
+</body>
+</html>
